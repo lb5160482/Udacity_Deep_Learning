@@ -11813,7 +11813,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="k">import</span> <span class="n">load_files</span>       
@@ -11857,17 +11857,6 @@ div#notebook {
 <div class="prompt"></div>
 
 
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>Using TensorFlow backend.
-</pre>
-</div>
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>There are 133 total dog categories.
 There are 8351 total dog images.
@@ -11894,7 +11883,7 @@ There are 836 test dog images.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
@@ -11945,7 +11934,7 @@ There are 836 test dog images.
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">cv2</span>                
@@ -13383,7 +13372,7 @@ cbku1+X6VOsyWFyuy3W5PtX6/wFIXN/iFPsT1gAAAABJRU5ErkJggg==
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># returns &quot;True&quot; if face is detected in image stored at img_path</span>
@@ -13477,18 +13466,428 @@ Dog set performance(face detection): 0.11
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[43]:</div>
+<div class="prompt input_prompt">In&nbsp;[56]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## (Optional) TODO: Report the performance of another  </span>
 <span class="c1">## face detection algorithm on the LFW dataset</span>
 <span class="c1">### Feel free to use as many code cells as needed.</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">MaxPooling2D</span><span class="p">,</span> <span class="n">GlobalAveragePooling2D</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dense</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing</span> <span class="k">import</span> <span class="n">image</span>                  
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="k">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="k">import</span> <span class="n">ModelCheckpoint</span> 
+
+<span class="k">def</span> <span class="nf">path_to_tensor</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">load_img</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">target_size</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">paths_to_tensor</span><span class="p">(</span><span class="n">img_paths</span><span class="p">):</span>
+    <span class="n">list_of_tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">path_to_tensor</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span> <span class="k">for</span> <span class="n">img_path</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">img_paths</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">list_of_tensors</span><span class="p">)</span>
+
+<span class="n">train_human</span> <span class="o">=</span> <span class="n">human_files</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+<span class="n">train_dog</span> <span class="o">=</span> <span class="n">train_files</span><span class="p">[:</span><span class="mi">500</span><span class="p">]</span>
+<span class="n">test_human</span> <span class="o">=</span> <span class="n">human_files</span><span class="p">[</span><span class="mi">500</span><span class="p">:</span><span class="mi">600</span><span class="p">]</span>
+<span class="n">test_dog</span> <span class="o">=</span> <span class="n">train_files</span><span class="p">[</span><span class="mi">500</span><span class="p">:</span><span class="mi">600</span><span class="p">]</span>
+
+<span class="n">train_files</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">train_human</span><span class="p">,</span> <span class="n">train_dog</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">train_tensors</span> <span class="o">=</span> <span class="n">paths_to_tensor</span><span class="p">(</span><span class="n">train_files</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">/</span><span class="mi">255</span>
+<span class="n">train_label</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">train_label</span> <span class="o">=</span> <span class="n">np_utils</span><span class="o">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">train_label</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">test_files</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">test_human</span><span class="p">,</span> <span class="n">test_dog</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">test_tensors</span> <span class="o">=</span> <span class="n">paths_to_tensor</span><span class="p">(</span><span class="n">test_files</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span><span class="o">/</span><span class="mi">255</span>
+<span class="n">test_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">test_labels</span> <span class="o">=</span> <span class="n">np_utils</span><span class="o">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># define model</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">GlobalAveragePooling2D</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">))</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;rmsprop&#39;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;categorical_crossentropy&#39;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">])</span>
+
+<span class="c1"># train the model</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">checkpointer</span> <span class="o">=</span> <span class="n">ModelCheckpoint</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s1">&#39;saved_models/weights.best.human_or_dog.hdf5&#39;</span><span class="p">,</span> 
+                               <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_tensors</span><span class="p">,</span> <span class="n">train_label</span><span class="p">,</span> 
+          <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">test_tensors</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">),</span>
+          <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">checkpointer</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="s1">&#39;saved_models/weights.best.human_or_dog.hdf5&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>100%|██████████| 1000/1000 [00:02&lt;00:00, 425.81it/s]
+100%|██████████| 200/200 [00:00&lt;00:00, 436.96it/s]
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_17 (Conv2D)           (None, 127, 127, 16)      208       
+_________________________________________________________________
+max_pooling2d_17 (MaxPooling (None, 63, 63, 16)        0         
+_________________________________________________________________
+conv2d_18 (Conv2D)           (None, 62, 62, 32)        2080      
+_________________________________________________________________
+max_pooling2d_18 (MaxPooling (None, 31, 31, 32)        0         
+_________________________________________________________________
+global_average_pooling2d_9 ( (None, 32)                0         
+_________________________________________________________________
+dense_9 (Dense)              (None, 2)                 66        
+=================================================================
+Total params: 2,354.0
+Trainable params: 2,354.0
+Non-trainable params: 0.0
+_________________________________________________________________
+Train on 1000 samples, validate on 200 samples
+Epoch 1/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6988 - acc: 0.4867Epoch 00000: val_loss improved from inf to 0.69428, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6986 - acc: 0.4850 - val_loss: 0.6943 - val_acc: 0.4600
+Epoch 2/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4967Epoch 00001: val_loss improved from 0.69428 to 0.69421, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4950 - val_loss: 0.6942 - val_acc: 0.4900
+Epoch 3/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6949 - acc: 0.4811Epoch 00002: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6946 - acc: 0.4860 - val_loss: 0.6942 - val_acc: 0.4800
+Epoch 4/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6953 - acc: 0.4689Epoch 00003: val_loss improved from 0.69421 to 0.69403, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6953 - acc: 0.4700 - val_loss: 0.6940 - val_acc: 0.5000
+Epoch 5/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6945 - acc: 0.4989Epoch 00004: val_loss improved from 0.69403 to 0.69403, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6950 - acc: 0.4910 - val_loss: 0.6940 - val_acc: 0.4500
+Epoch 6/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.5011Epoch 00005: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5080 - val_loss: 0.6943 - val_acc: 0.4850
+Epoch 7/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6939 - acc: 0.5000Epoch 00006: val_loss improved from 0.69403 to 0.69390, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4990 - val_loss: 0.6939 - val_acc: 0.5050
+Epoch 8/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4778Epoch 00007: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4740 - val_loss: 0.6944 - val_acc: 0.4950
+Epoch 9/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6940 - acc: 0.4767Epoch 00008: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4780 - val_loss: 0.6939 - val_acc: 0.4800
+Epoch 10/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.5111Epoch 00009: val_loss improved from 0.69390 to 0.69383, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.5050 - val_loss: 0.6938 - val_acc: 0.4650
+Epoch 11/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6950 - acc: 0.5100Epoch 00010: val_loss improved from 0.69383 to 0.69373, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6948 - acc: 0.5060 - val_loss: 0.6937 - val_acc: 0.4850
+Epoch 12/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.4933Epoch 00011: val_loss improved from 0.69373 to 0.69368, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4900 - val_loss: 0.6937 - val_acc: 0.5150
+Epoch 13/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6939 - acc: 0.4889Epoch 00012: val_loss improved from 0.69368 to 0.69366, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4950 - val_loss: 0.6937 - val_acc: 0.5150
+Epoch 14/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6940 - acc: 0.4811Epoch 00013: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4840 - val_loss: 0.6938 - val_acc: 0.4850
+Epoch 15/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6947 - acc: 0.4844Epoch 00014: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6945 - acc: 0.4880 - val_loss: 0.6939 - val_acc: 0.4950
+Epoch 16/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6941 - acc: 0.4867Epoch 00015: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4950 - val_loss: 0.6941 - val_acc: 0.5000
+Epoch 17/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.5111Epoch 00016: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6946 - acc: 0.4950 - val_loss: 0.6938 - val_acc: 0.5050
+Epoch 18/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.5067Epoch 00017: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5140 - val_loss: 0.6940 - val_acc: 0.5000
+Epoch 19/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6941 - acc: 0.4833Epoch 00018: val_loss improved from 0.69366 to 0.69358, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4910 - val_loss: 0.6936 - val_acc: 0.4800
+Epoch 20/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4911Epoch 00019: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4940 - val_loss: 0.6939 - val_acc: 0.5000
+Epoch 21/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6952 - acc: 0.4700Epoch 00020: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6951 - acc: 0.4710 - val_loss: 0.6936 - val_acc: 0.4700
+Epoch 22/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5078Epoch 00021: val_loss improved from 0.69358 to 0.69353, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.5060 - val_loss: 0.6935 - val_acc: 0.4850
+Epoch 23/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4744Epoch 00022: val_loss improved from 0.69353 to 0.69349, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4760 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 24/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6948 - acc: 0.4511Epoch 00023: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6946 - acc: 0.4570 - val_loss: 0.6935 - val_acc: 0.4900
+Epoch 25/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6941 - acc: 0.5078Epoch 00024: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6940 - acc: 0.5090 - val_loss: 0.6936 - val_acc: 0.4800
+Epoch 26/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6942 - acc: 0.5022Epoch 00025: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6942 - acc: 0.4980 - val_loss: 0.6935 - val_acc: 0.4850
+Epoch 27/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4722Epoch 00026: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4730 - val_loss: 0.6935 - val_acc: 0.4900
+Epoch 28/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.5011Epoch 00027: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5000 - val_loss: 0.6937 - val_acc: 0.5000
+Epoch 29/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4933Epoch 00028: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4890 - val_loss: 0.6935 - val_acc: 0.4900
+Epoch 30/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6939 - acc: 0.4878Epoch 00029: val_loss improved from 0.69349 to 0.69349, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4820 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 31/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6932 - acc: 0.4967Epoch 00030: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4870 - val_loss: 0.6935 - val_acc: 0.4850
+Epoch 32/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4711Epoch 00031: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4700 - val_loss: 0.6935 - val_acc: 0.4600
+Epoch 33/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.5167Epoch 00032: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.5100 - val_loss: 0.6937 - val_acc: 0.5000
+Epoch 34/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4967Epoch 00033: val_loss did not improve
+1000/1000 [==============================] - 6s - loss: 0.6937 - acc: 0.4980 - val_loss: 0.6938 - val_acc: 0.5000
+Epoch 35/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6943 - acc: 0.4611Epoch 00034: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6942 - acc: 0.4680 - val_loss: 0.6940 - val_acc: 0.5000
+Epoch 36/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.5011Epoch 00035: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5050 - val_loss: 0.6935 - val_acc: 0.4650
+Epoch 37/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.4844Epoch 00036: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4810 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 38/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6939 - acc: 0.4833Epoch 00037: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4850 - val_loss: 0.6936 - val_acc: 0.4950
+Epoch 39/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5100Epoch 00038: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4980 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 40/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4989Epoch 00039: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.5030 - val_loss: 0.6935 - val_acc: 0.4750
+Epoch 41/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6940 - acc: 0.4711Epoch 00040: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6941 - acc: 0.4660 - val_loss: 0.6935 - val_acc: 0.4900
+Epoch 42/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4933Epoch 00041: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4950 - val_loss: 0.6936 - val_acc: 0.5000
+Epoch 43/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4989Epoch 00042: val_loss improved from 0.69349 to 0.69345, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.5030 - val_loss: 0.6934 - val_acc: 0.4850
+Epoch 44/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6940 - acc: 0.4722Epoch 00043: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4780 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 45/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6939 - acc: 0.4700Epoch 00044: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4700 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 46/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4789Epoch 00045: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4680 - val_loss: 0.6935 - val_acc: 0.4950
+Epoch 47/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4822Epoch 00046: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4810 - val_loss: 0.6935 - val_acc: 0.4550
+Epoch 48/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4856Epoch 00047: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6936 - acc: 0.4840 - val_loss: 0.6935 - val_acc: 0.4650
+Epoch 49/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4900Epoch 00048: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4850 - val_loss: 0.6935 - val_acc: 0.5050
+Epoch 50/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4922Epoch 00049: val_loss improved from 0.69345 to 0.69343, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4910 - val_loss: 0.6934 - val_acc: 0.4900
+Epoch 51/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4989Epoch 00050: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4950 - val_loss: 0.6935 - val_acc: 0.4750
+Epoch 52/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4856Epoch 00051: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4880 - val_loss: 0.6934 - val_acc: 0.4700
+Epoch 53/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6938 - acc: 0.4900Epoch 00052: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6938 - acc: 0.4840 - val_loss: 0.6935 - val_acc: 0.4850
+Epoch 54/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6941 - acc: 0.4744Epoch 00053: val_loss improved from 0.69343 to 0.69342, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6939 - acc: 0.4790 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 55/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4911Epoch 00054: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4930 - val_loss: 0.6935 - val_acc: 0.4900
+Epoch 56/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4900Epoch 00055: val_loss improved from 0.69342 to 0.69341, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4860 - val_loss: 0.6934 - val_acc: 0.4700
+Epoch 57/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4889Epoch 00056: val_loss improved from 0.69341 to 0.69341, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4870 - val_loss: 0.6934 - val_acc: 0.4650
+Epoch 58/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4978Epoch 00057: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4950 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 59/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4822Epoch 00058: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4850 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 60/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4756Epoch 00059: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4740 - val_loss: 0.6934 - val_acc: 0.4850
+Epoch 61/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.4822Epoch 00060: val_loss improved from 0.69341 to 0.69339, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4870 - val_loss: 0.6934 - val_acc: 0.4650
+Epoch 62/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.4900Epoch 00061: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6937 - acc: 0.4890 - val_loss: 0.6934 - val_acc: 0.4650
+Epoch 63/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4811Epoch 00062: val_loss improved from 0.69339 to 0.69338, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4770 - val_loss: 0.6934 - val_acc: 0.4600
+Epoch 64/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4678Epoch 00063: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4740 - val_loss: 0.6934 - val_acc: 0.4650
+Epoch 65/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5000Epoch 00064: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4950 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 66/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.4800Epoch 00065: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6936 - acc: 0.4780 - val_loss: 0.6934 - val_acc: 0.4550
+Epoch 67/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4956Epoch 00066: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4890 - val_loss: 0.6934 - val_acc: 0.4900
+Epoch 68/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.4844Epoch 00067: val_loss improved from 0.69338 to 0.69336, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4810 - val_loss: 0.6934 - val_acc: 0.4550
+Epoch 69/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.5011Epoch 00068: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4930 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 70/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4889Epoch 00069: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4880 - val_loss: 0.6934 - val_acc: 0.4800
+Epoch 71/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4867Epoch 00070: val_loss improved from 0.69336 to 0.69336, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4850 - val_loss: 0.6934 - val_acc: 0.4750
+Epoch 72/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4967Epoch 00071: val_loss improved from 0.69336 to 0.69335, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4950 - val_loss: 0.6933 - val_acc: 0.4600
+Epoch 73/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.5056Epoch 00072: val_loss improved from 0.69335 to 0.69331, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6932 - acc: 0.5060 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 74/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6937 - acc: 0.4644Epoch 00073: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6936 - acc: 0.4700 - val_loss: 0.6933 - val_acc: 0.5150
+Epoch 75/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4989Epoch 00074: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.5030 - val_loss: 0.6933 - val_acc: 0.4850
+Epoch 76/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4889Epoch 00075: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4840 - val_loss: 0.6933 - val_acc: 0.4700
+Epoch 77/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4933Epoch 00076: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4880 - val_loss: 0.6933 - val_acc: 0.4900
+Epoch 78/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4967Epoch 00077: val_loss improved from 0.69331 to 0.69331, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4950 - val_loss: 0.6933 - val_acc: 0.5200
+Epoch 79/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4744Epoch 00078: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4740 - val_loss: 0.6933 - val_acc: 0.4900
+Epoch 80/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.4911Epoch 00079: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.4890 - val_loss: 0.6933 - val_acc: 0.5100
+Epoch 81/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.5111Epoch 00080: val_loss improved from 0.69331 to 0.69330, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.5060 - val_loss: 0.6933 - val_acc: 0.4750
+Epoch 82/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4933Epoch 00081: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4880 - val_loss: 0.6933 - val_acc: 0.4900
+Epoch 83/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6932 - acc: 0.4789Epoch 00082: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6932 - acc: 0.4870 - val_loss: 0.6933 - val_acc: 0.4700
+Epoch 84/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6935 - acc: 0.5011Epoch 00083: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.5100 - val_loss: 0.6933 - val_acc: 0.4600
+Epoch 85/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5056Epoch 00084: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.5000 - val_loss: 0.6933 - val_acc: 0.4950
+Epoch 86/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4800Epoch 00085: val_loss improved from 0.69330 to 0.69329, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4780 - val_loss: 0.6933 - val_acc: 0.4800
+Epoch 87/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4944Epoch 00086: val_loss improved from 0.69329 to 0.69329, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4960 - val_loss: 0.6933 - val_acc: 0.4650
+Epoch 88/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4900Epoch 00087: val_loss improved from 0.69329 to 0.69327, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4910 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 89/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6932 - acc: 0.4889Epoch 00088: val_loss improved from 0.69327 to 0.69327, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6932 - acc: 0.4910 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 90/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6936 - acc: 0.4689Epoch 00089: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6936 - acc: 0.4790 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 91/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5089Epoch 00090: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5000 - val_loss: 0.6933 - val_acc: 0.4900
+Epoch 92/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6932 - acc: 0.4833Epoch 00091: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4840 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 93/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4933Epoch 00092: val_loss did not improve
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4900 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 94/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4989Epoch 00093: val_loss improved from 0.69327 to 0.69327, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.5010 - val_loss: 0.6933 - val_acc: 0.5000
+Epoch 95/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.5089Epoch 00094: val_loss improved from 0.69327 to 0.69326, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6935 - acc: 0.5010 - val_loss: 0.6933 - val_acc: 0.5050
+Epoch 96/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6931 - acc: 0.5089Epoch 00095: val_loss improved from 0.69326 to 0.69326, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4990 - val_loss: 0.6933 - val_acc: 0.4950
+Epoch 97/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6934 - acc: 0.4922Epoch 00096: val_loss improved from 0.69326 to 0.69326, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6934 - acc: 0.4870 - val_loss: 0.6933 - val_acc: 0.4650
+Epoch 98/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6932 - acc: 0.4911Epoch 00097: val_loss improved from 0.69326 to 0.69324, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4820 - val_loss: 0.6932 - val_acc: 0.4900
+Epoch 99/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.4789Epoch 00098: val_loss improved from 0.69324 to 0.69323, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.4840 - val_loss: 0.6932 - val_acc: 0.4950
+Epoch 100/100
+ 900/1000 [==========================&gt;...] - ETA: 0s - loss: 0.6933 - acc: 0.5022Epoch 00099: val_loss improved from 0.69323 to 0.69323, saving model to saved_models/weights.best.human_or_dog.hdf5
+1000/1000 [==============================] - 5s - loss: 0.6933 - acc: 0.5050 - val_loss: 0.6932 - val_acc: 0.4900
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="opinion:-we-should-train-a-neural-network-to-check-if-it-is-a-human-or-dog-as-above.-The-method-I-used-is-a-simple-idea-without-more-finetunning.-The-reason-for-using-a-neural-network-instead-of-using-a-Haar-cascades-is-that-we-can-finally-improve-the-model-with-very-high-accuracy-while-Haar-cascades-has-its-limitations-that-for-some-dogs,-it-is-unavoidable-that-it-is-classied-as-a-human-face.-Even-though-my-model-here-does-not-work-well-enough,-by-adding-more-adjustments-and-especially-implementing-transfer-learning,-we-will-finally-obtain-an-satisfying-results.">opinion: we should train a neural network to check if it is a human or dog as above. The method I used is a simple idea without more finetunning. The reason for using a neural network instead of using a Haar cascades is that we can finally improve the model with very high accuracy while Haar cascades has its limitations that for some dogs, it is unavoidable that it is classied as a human face. Even though my model here does not work well enough, by adding more adjustments and especially implementing transfer learning, we will finally obtain an satisfying results.<a class="anchor-link" href="#opinion:-we-should-train-a-neural-network-to-check-if-it-is-a-human-or-dog-as-above.-The-method-I-used-is-a-simple-idea-without-more-finetunning.-The-reason-for-using-a-neural-network-instead-of-using-a-Haar-cascades-is-that-we-can-finally-improve-the-model-with-very-high-accuracy-while-Haar-cascades-has-its-limitations-that-for-some-dogs,-it-is-unavoidable-that-it-is-classied-as-a-human-face.-Even-though-my-model-here-does-not-work-well-enough,-by-adding-more-adjustments-and-especially-implementing-transfer-learning,-we-will-finally-obtain-an-satisfying-results.">&#182;</a></h3><h3 id="The-reason-that-why-I-think-that-we-communicate-to-the-user-that-we-accept-human-images-only-when-they-provide-a-clear-view-of-a-face-is-that-many-images-comes-with-the-front-face-of-a-human.-In-this-case,-the-Haar-face-detection-classifier-model-dows-not-work-well.-In-other-words,-to-detect-these-kinds-of-images,-we-need-to-train-a-neural-network-to-fit-images-well-so-that-even-if-there-is-not-a-front-face,-the-model-is-still-able-to-know-that-there-is-a-face-in-this-image">The reason that why I think that we communicate to the user that we accept human images only when they provide a clear view of a face is that many images comes with the front face of a human. In this case, the Haar face detection classifier model dows not work well. In other words, to detect these kinds of images, we need to train a neural network to fit images well so that even if there is not a front face, the model is still able to know that there is a face in this image<a class="anchor-link" href="#The-reason-that-why-I-think-that-we-communicate-to-the-user-that-we-accept-human-images-only-when-they-provide-a-clear-view-of-a-face-is-that-many-images-comes-with-the-front-face-of-a-human.-In-this-case,-the-Haar-face-detection-classifier-model-dows-not-work-well.-In-other-words,-to-detect-these-kinds-of-images,-we-need-to-train-a-neural-network-to-fit-images-well-so-that-even-if-there-is-not-a-front-face,-the-model-is-still-able-to-know-that-there-is-a-face-in-this-image">&#182;</a></h3>
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
@@ -13503,7 +13902,7 @@ Dog set performance(face detection): 0.11
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.applications.resnet50</span> <span class="k">import</span> <span class="n">ResNet50</span>
@@ -13541,7 +13940,7 @@ $$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.preprocessing</span> <span class="k">import</span> <span class="n">image</span>                  
@@ -13578,7 +13977,7 @@ $$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.applications.resnet50</span> <span class="k">import</span> <span class="n">preprocess_input</span><span class="p">,</span> <span class="n">decode_predictions</span>
@@ -13606,7 +14005,7 @@ $$</p>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[8]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### returns &quot;True&quot; if a dog is detected in the image stored at img_path</span>
@@ -13741,7 +14140,7 @@ Dog set performance(dog detection): 1.0
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">ImageFile</span>                            
@@ -13767,9 +14166,9 @@ Dog set performance(dog detection): 1.0
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>100%|██████████| 6680/6680 [01:42&lt;00:00, 65.05it/s] 
-100%|██████████| 835/835 [00:13&lt;00:00, 60.06it/s]
-100%|██████████| 836/836 [00:13&lt;00:00, 60.25it/s]
+<pre>100%|██████████| 6680/6680 [01:59&lt;00:00, 55.84it/s]
+100%|██████████| 835/835 [00:14&lt;00:00, 59.27it/s]
+100%|██████████| 836/836 [00:14&lt;00:00, 58.49it/s]
 </pre>
 </div>
 </div>
@@ -13795,25 +14194,47 @@ Dog set performance(dog detection): 1.0
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-reason-I-think-that-CNN-architecture-should-work-well-for-the-image-classification-task-is-that-the-previous-three-layers-will-train-the-general-features-like-edges-and-corners,-and-then-use-fully-connected-layrer-to-get-the-specific-information-of-image.-I-did-some-projects-that-also-use-this-kind-of-layer-that-combining-with-several-convolutional-layers-first-following-with-a-fully-connected-layer,-which-works-well-with-the-image-classification-problem.">The reason I think that CNN architecture should work well for the image classification task is that the previous three layers will train the general features like edges and corners, and then use fully connected layrer to get the specific information of image. I did some projects that also use this kind of layer that combining with several convolutional layers first following with a fully connected layer, which works well with the image classification problem.<a class="anchor-link" href="#The-reason-I-think-that-CNN-architecture-should-work-well-for-the-image-classification-task-is-that-the-previous-three-layers-will-train-the-general-features-like-edges-and-corners,-and-then-use-fully-connected-layrer-to-get-the-specific-information-of-image.-I-did-some-projects-that-also-use-this-kind-of-layer-that-combining-with-several-convolutional-layers-first-following-with-a-fully-connected-layer,-which-works-well-with-the-image-classification-problem.">&#182;</a></h3>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">MaxPooling2D</span><span class="p">,</span> <span class="n">GlobalAveragePooling2D</span>
 <span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dense</span>
 <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers.normalization</span> <span class="k">import</span> <span class="n">BatchNormalization</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
 
 <span class="c1">### TODO: Define your architecture.</span>
+<span class="c1"># using convolutional layer to train filters getting general features like edges, corners</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="c1"># using batch normalization to avoid &quot;internal covariate shift&quot;</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">BatchNormalization</span><span class="p">())</span>
+<span class="c1"># using max pooling to decrease output image size since depth increased</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># the usage of this layer is similar to the first layer</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">BatchNormalization</span><span class="p">())</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># the usage of this layer is similar to the first layer</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">BatchNormalization</span><span class="p">())</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># using global average pooling to flatten the convolutional layer</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">GlobalAveragePooling2D</span><span class="p">())</span>
+<span class="c1"># using FC layer to get the output classification</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">133</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">))</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
@@ -13836,15 +14257,21 @@ Dog set performance(dog detection): 1.0
 <pre>_________________________________________________________________
 Layer (type)                 Output Shape              Param #   
 =================================================================
-conv2d_1 (Conv2D)            (None, 223, 223, 16)      208       
+conv2d_2 (Conv2D)            (None, 223, 223, 16)      208       
+_________________________________________________________________
+batch_normalization_1 (Batch (None, 223, 223, 16)      64        
 _________________________________________________________________
 max_pooling2d_2 (MaxPooling2 (None, 111, 111, 16)      0         
 _________________________________________________________________
-conv2d_2 (Conv2D)            (None, 110, 110, 32)      2080      
+conv2d_3 (Conv2D)            (None, 110, 110, 32)      2080      
+_________________________________________________________________
+batch_normalization_2 (Batch (None, 110, 110, 32)      128       
 _________________________________________________________________
 max_pooling2d_3 (MaxPooling2 (None, 55, 55, 32)        0         
 _________________________________________________________________
-conv2d_3 (Conv2D)            (None, 54, 54, 64)        8256      
+conv2d_4 (Conv2D)            (None, 54, 54, 64)        8256      
+_________________________________________________________________
+batch_normalization_3 (Batch (None, 54, 54, 64)        256       
 _________________________________________________________________
 max_pooling2d_4 (MaxPooling2 (None, 27, 27, 64)        0         
 _________________________________________________________________
@@ -13852,9 +14279,9 @@ global_average_pooling2d_1 ( (None, 64)                0
 _________________________________________________________________
 dense_1 (Dense)              (None, 133)               8645      
 =================================================================
-Total params: 19,189.0
-Trainable params: 19,189.0
-Non-trainable params: 0.0
+Total params: 19,637.0
+Trainable params: 19,413.0
+Non-trainable params: 224.0
 _________________________________________________________________
 </pre>
 </div>
@@ -13874,7 +14301,7 @@ _________________________________________________________________
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;rmsprop&#39;</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;categorical_crossentropy&#39;</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">])</span>
@@ -13897,7 +14324,7 @@ _________________________________________________________________
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="k">import</span> <span class="n">ModelCheckpoint</span>  
@@ -13932,33 +14359,33 @@ _________________________________________________________________
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Train on 6680 samples, validate on 835 samples
 Epoch 1/5
-6660/6680 [============================&gt;.] - ETA: 0s - loss: 4.8844 - acc: 0.0095Epoch 00000: val_loss improved from inf to 4.87002, saving model to saved_models/weights.best.from_scratch.hdf5
-6680/6680 [==============================] - 140s - loss: 4.8844 - acc: 0.0094 - val_loss: 4.8700 - val_acc: 0.0108
+6660/6680 [============================&gt;.] - ETA: 1s - loss: 4.8328 - acc: 0.0177Epoch 00000: val_loss improved from inf to 4.91729, saving model to saved_models/weights.best.from_scratch.hdf5
+6680/6680 [==============================] - 394s - loss: 4.8321 - acc: 0.0177 - val_loss: 4.9173 - val_acc: 0.0132
 Epoch 2/5
-6660/6680 [============================&gt;.] - ETA: 0s - loss: 4.8533 - acc: 0.0131Epoch 00001: val_loss improved from 4.87002 to 4.83610, saving model to saved_models/weights.best.from_scratch.hdf5
-6680/6680 [==============================] - 142s - loss: 4.8535 - acc: 0.0132 - val_loss: 4.8361 - val_acc: 0.0132
+6660/6680 [============================&gt;.] - ETA: 1s - loss: 4.6657 - acc: 0.0347Epoch 00001: val_loss improved from 4.91729 to 4.69997, saving model to saved_models/weights.best.from_scratch.hdf5
+6680/6680 [==============================] - 392s - loss: 4.6661 - acc: 0.0347 - val_loss: 4.7000 - val_acc: 0.0335
 Epoch 3/5
-6660/6680 [============================&gt;.] - ETA: 0s - loss: 4.8103 - acc: 0.0164Epoch 00002: val_loss improved from 4.83610 to 4.80610, saving model to saved_models/weights.best.from_scratch.hdf5
-6680/6680 [==============================] - 142s - loss: 4.8098 - acc: 0.0165 - val_loss: 4.8061 - val_acc: 0.0251
+6660/6680 [============================&gt;.] - ETA: 1s - loss: 4.5735 - acc: 0.0413Epoch 00002: val_loss improved from 4.69997 to 4.69417, saving model to saved_models/weights.best.from_scratch.hdf5
+6680/6680 [==============================] - 391s - loss: 4.5729 - acc: 0.0413 - val_loss: 4.6942 - val_acc: 0.0251
 Epoch 4/5
-6660/6680 [============================&gt;.] - ETA: 0s - loss: 4.7795 - acc: 0.0188Epoch 00003: val_loss improved from 4.80610 to 4.78528, saving model to saved_models/weights.best.from_scratch.hdf5
-6680/6680 [==============================] - 143s - loss: 4.7793 - acc: 0.0189 - val_loss: 4.7853 - val_acc: 0.0216
+6660/6680 [============================&gt;.] - ETA: 1s - loss: 4.4975 - acc: 0.0509Epoch 00003: val_loss improved from 4.69417 to 4.54147, saving model to saved_models/weights.best.from_scratch.hdf5
+6680/6680 [==============================] - 396s - loss: 4.4975 - acc: 0.0509 - val_loss: 4.5415 - val_acc: 0.0323
 Epoch 5/5
-6660/6680 [============================&gt;.] - ETA: 0s - loss: 4.7484 - acc: 0.0221Epoch 00004: val_loss improved from 4.78528 to 4.75874, saving model to saved_models/weights.best.from_scratch.hdf5
-6680/6680 [==============================] - 142s - loss: 4.7482 - acc: 0.0222 - val_loss: 4.7587 - val_acc: 0.0251
+6660/6680 [============================&gt;.] - ETA: 1s - loss: 4.4395 - acc: 0.0566Epoch 00004: val_loss did not improve
+6680/6680 [==============================] - 387s - loss: 4.4391 - acc: 0.0564 - val_loss: 4.5606 - val_acc: 0.0323
 </pre>
 </div>
 </div>
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[12]:</div>
+<div class="prompt output_prompt">Out[39]:</div>
 
 
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;keras.callbacks.History at 0x12401ffd0&gt;</pre>
+<pre>&lt;keras.callbacks.History at 0x11f2c6f60&gt;</pre>
 </div>
 
 </div>
@@ -13977,7 +14404,7 @@ Epoch 5/5
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[13]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="s1">&#39;saved_models/weights.best.from_scratch.hdf5&#39;</span><span class="p">)</span>
@@ -13999,7 +14426,7 @@ Epoch 5/5
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[14]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get index of predicted dog breed for each image in test set</span>
@@ -14024,7 +14451,7 @@ Epoch 5/5
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Test accuracy: 2.5120%
+<pre>Test accuracy: 2.9904%
 </pre>
 </div>
 </div>
@@ -14409,6 +14836,14 @@ test_{network} = bottleneck_features['test']</code></pre>
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="The-reason-I-choose-Resnet-is-that-this-is-well-trained-model-with-so-many-layers,-which-will-give-us-very-good-filters-to-the-very-general-features.-For-this-problem,-we-need-classify-etween-human-and-dogs.-Fot-the-early-layers,-we-need-to-extrect-the-very-general-features-like-edges-and-corners,-and-this-model-can-give-us-a-very-good-result-of-that.-That-is-why-I-choose-Resnet,-which-also-beats-VGG-mdel-from-the-experiment-with-only-20-epochs.">The reason I choose Resnet is that this is well trained model with so many layers, which will give us very good filters to the very general features. For this problem, we need classify etween human and dogs. Fot the early layers, we need to extrect the very general features like edges and corners, and this model can give us a very good result of that. That is why I choose Resnet, which also beats VGG mdel from the experiment with only 20 epochs.<a class="anchor-link" href="#The-reason-I-choose-Resnet-is-that-this-is-well-trained-model-with-so-many-layers,-which-will-give-us-very-good-filters-to-the-very-general-features.-For-this-problem,-we-need-classify-etween-human-and-dogs.-Fot-the-early-layers,-we-need-to-extrect-the-very-general-features-like-edges-and-corners,-and-this-model-can-give-us-a-very-good-result-of-that.-That-is-why-I-choose-Resnet,-which-also-beats-VGG-mdel-from-the-experiment-with-only-20-epochs.">&#182;</a></h3>
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[23]:</div>
@@ -14416,11 +14851,13 @@ test_{network} = bottleneck_features['test']</code></pre>
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1">### TODO: Define your architecture.</span>
 <span class="n">trans_resnet</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
-<span class="c1"># get more complicated features using convolutional layer</span>
-<span class="c1"># trans_resnet.add(Conv2D(filters=32, kernel_size=2, padding=&#39;valid&#39;,  activation=&#39;relu&#39;, input_shape=train_resnet50.shape[1:]))</span>
-<span class="c1"># extract average value for each output image in this layer to be the input nodes for the final FC layer</span>
+
+<span class="c1"># Flatten the convolutional layer by extracting average value for each output image in this layer</span>
+<span class="c1"># to be the input nodes for the final FC layer</span>
+<span class="c1"># I add this FC layer to make the pre_trained model fit my data while i using the same parameters from its previous</span>
+<span class="c1"># layers so it has already been very good at detecting general features of an image</span>
 <span class="n">trans_resnet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">GlobalAveragePooling2D</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="n">train_resnet50</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-<span class="c1"># FC layer with softmax to classify</span>
+<span class="c1"># I add the FC layer with softmax for the number of claases to fo the final classification</span>
 <span class="n">trans_resnet</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">133</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">))</span>
 
 <span class="n">trans_resnet</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
@@ -26989,6 +27426,19 @@ Z3iGDwlP6zLyGZ7h+w7PBtszPMOHhGeD7Rme4UPCs8H2DM/wIeHZYHuGZ/iQ8GywPcMzfEh4Ntie
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Three-possible-points-of-improvement-for-my-algorithm:">Three possible points of improvement for my algorithm:<a class="anchor-link" href="#Three-possible-points-of-improvement-for-my-algorithm:">&#182;</a></h2><ol>
+<li>Add batch normalization</li>
+<li>Add dataset indicating class 'others' so that the model can give the final results with a higher accuracy showing if the input image is neither of a human or a dog.</li>
+<li>Add human dataset to indicate class 'human' instead of simply using Haar cascade classifier to determine if it is a human, which actually might reslut in a less accuracy than a well trained model.</li>
+</ol>
+
+</div>
+</div>
 </div>
     </div>
   </div>
