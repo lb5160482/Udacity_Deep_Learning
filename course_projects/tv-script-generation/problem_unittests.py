@@ -259,7 +259,11 @@ def test_build_nn(build_nn):
             'Final state doesn\'t have the "name" attribute.  Are you using build_rnn?'
         assert final_state.name == 'final_state:0', \
             'Final state doesn\'t have the correct name. Found the name {}. Are you using build_rnn?'.format(final_state.name)
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 2b68174ece13dc72fc60901e3401b9a58d499b93
         # Check Shape
         assert logits.get_shape().as_list() == test_input_data_shape + [test_vocab_size], \
             'Outputs has wrong shape.  Found shape {}'.format(logits.get_shape())
